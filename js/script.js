@@ -1,6 +1,7 @@
 import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
 import { PointerLockControls } from 'https://unpkg.com/three@0.127.0/examples/jsm/controls/PointerLockControls.js';
 import { OBJLoader  } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader  } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/MTLLoader.js';
 
 let camera, scene, renderer, controls;
 
@@ -30,32 +31,32 @@ let camera, scene, renderer, controls;
 
 				scene = new THREE.Scene();
 
-                // instantiate a loader
-                const loader = new OBJLoader();
-
                 // load a resource
-                loader.load(
-                    // resource URL
-                    'models/city.obj',
-                    // called when resource is loaded
-                    function ( object ) {
+				var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
 
-                        scene.add( object );
+				var onError = function ( xhr ) { };
 
-                    },
-                    // called when loading is in progresses
-                    function ( xhr ) {
+				var mtlLoader = new MTLLoader();
+				mtlLoader.setPath( 'models/' );
+				mtlLoader.load( 'CHERNOBYL.mtl', function( materials ) {
 
-                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					materials.preload();
 
-                    },
-                    // called when loading has errors
-                    function ( error ) {
+					var objLoader = new OBJLoader();
+					objLoader.setMaterials( materials );
+					objLoader.setPath( 'models/' );
+					objLoader.load( 'CHERNOBYL.obj', function ( object ) {
+						
+						scene.add( object );
 
-                        console.log( 'An error happened' );
+					}, onProgress, onError );
 
-                    }
-                );
+				});
 
 				scene.background = new THREE.Color( 0xffffff );
 				scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
@@ -199,34 +200,34 @@ let camera, scene, renderer, controls;
 
 				// objects
 
-				const boxGeometry = new THREE.BoxGeometry( 20, 20, 20 ).toNonIndexed();
+				// const boxGeometry = new THREE.BoxGeometry( 20, 20, 20 ).toNonIndexed();
 
-				position = boxGeometry.attributes.position;
-				const colorsBox = [];
+				// position = boxGeometry.attributes.position;
+				// const colorsBox = [];
 
-				for ( let i = 0, l = position.count; i < l; i ++ ) {
+				// for ( let i = 0, l = position.count; i < l; i ++ ) {
 
-					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-					colorsBox.push( color.r, color.g, color.b );
+				// 	color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+				// 	colorsBox.push( color.r, color.g, color.b );
 
-				}
+				// }
 
-				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colorsBox, 3 ) );
+				// boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colorsBox, 3 ) );
 
-				for ( let i = 0; i < 500; i ++ ) {
+				// for ( let i = 0; i < 500; i ++ ) {
 
-					const boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
-					boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+				// 	const boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
+				// 	boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 
-					const box = new THREE.Mesh( boxGeometry, boxMaterial );
-					box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-					box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-					box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+				// 	const box = new THREE.Mesh( boxGeometry, boxMaterial );
+				// 	box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+				// 	box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
+				// 	box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
 
-					scene.add( box );
-					objects.push( box );
+				// 	scene.add( box );
+				// 	objects.push( box );
 
-				}
+				// }
 
 				//
 
